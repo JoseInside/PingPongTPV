@@ -1,0 +1,14 @@
+#Ignorar carpeta Debug
+
+HolaSDL/Debug/
+bin/*P5_PingPong.exe
+bin/*P5_PingPong.ilk
+bin/*P5_PingPong.pdb
+bin/*Proyect1Debug
+
+.vs/
+
+#Ignorar archivos concretos
+
+*Proyecto_2.sdf
+*Proyecto_2.v12.suo
