@@ -17,6 +17,11 @@ void ComponentSwitcher::handleInput(const SDL_Event& event) {
 void ComponentSwitcher::addMode(InputComponent* inputComp,
 		PhysicsComponent* physicsComp, RenderComponent* renderComp,
 		RenderComponent* modeRendered) {
+	mode n;
+	n = { inputComp, physicsComp, renderComp, modeRendered };
+//	mode m= new mode(inputComp, physicsComp, renderComp, modeRendered);
+	
+	modos.push_back(n);
 }
 
 void ComponentSwitcher::setMode(int mode) {

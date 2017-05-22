@@ -6,7 +6,7 @@
 #include "PaddleMouseInputComp.h"
 #include "StopOnBordersPhysics.h"
 #include "PaddleAIPhysics.h"
-#include "PingPongPhysics.h"
+
 
 PingPong::PingPong() :
 		SDLGame("Ping Pong", _WINDOW_WIDTH_, _WINDOW_HEIGHT_) {
@@ -31,8 +31,6 @@ void PingPong::initGame() {
 	bounceOnBorderPhysics_ = new BounceOnBorders(true, true, true, true);
 	//
 	
-	pingPongPhysics_ = new PingPongPhysics(left_paddle_, right_paddle_);
-
 	// ball
 	ball_ = new GameComponent(this);
 	ball_->setWidth(10);
@@ -43,7 +41,6 @@ void PingPong::initGame() {
 		ball_->getGame()->getWindowHeight() / 2 - ball_->getHeight() / 2);
 	ball_->setPhysicsComponent(bounceOnBorderPhysics_);
 	ball_->setRenderComponent(rectangleRenderer_);
-	//ball_->setPhysicsComponent(pingPongPhysics_);
 	// use the following for an image of a tennis ball
 	// ball_->setRenderComponent(imageRenderer_);
 
@@ -77,21 +74,28 @@ void PingPong::initGame() {
 
 	//rightKeyInput_ = new PaddleKeyboardInputComp(SDLK_a, SDLK_z, SDLK_s, 5);
 	//right_paddle_->setInputComponent(rightKeyInput_);
-	rightMouseInput_ = new PaddleMouseInputComp();
-	right_paddle_->setInputComponent(rightMouseInput_);
+	//rightMouseInput_ = new PaddleMouseInputComp();
+	//right_paddle_->setInputComponent(rightMouseInput_);
 	rightPaddlePhysics_ = new StopOnBordersPhysics(false, false, true, true);
 	right_paddle_->setPhysicsComponent(rightPaddlePhysics_);
 	rightPaddleAI_ = new PaddleAIPhysics(ball_);
 	right_paddle_->setPhysicsComponent(rightPaddleAI_);
 
-
 	// game manager
 	gameManager_ = new GameManager(this);
-
+	
+	pingPongPhysics_ = new PingPongPhysics(left_paddle_, right_paddle_);
+	ball_->setPhysicsComponent(pingPongPhysics_);
+	gameManager_->registerGameStateObserver(pingPongPhysics_);
+	pingPongPhysics_->resgisterBallObserver(gameManager_);
+	
+	
 	actors_.push_back(left_paddle_);
 	actors_.push_back(right_paddle_);
 	actors_.push_back(ball_);
 	actors_.push_back(gameManager_);
+
+	
 }
 
 void PingPong::closeGame() {
@@ -124,7 +128,9 @@ void PingPong::update() {
 }
 
 void PingPong::handleInput() {
+	
 	SDL_Event event;
+	
 	while (SDL_PollEvent(&event)) {
 		if (event.type == SDL_KEYDOWN) {
 			switch (event.key.keysym.sym) {

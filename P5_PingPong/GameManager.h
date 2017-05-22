@@ -20,6 +20,7 @@ public:
 	virtual void handleInput(const SDL_Event& e);
 	virtual void update();
 	virtual void render();
+//	virtual void render(Texture type);
 
 	// from BallObserver
 	virtual void onCollision(GameObject* ball, GameObject* o);
@@ -28,6 +29,20 @@ public:
 private:
 	Font* font_;
 	Texture startMsgTexture_;
+	Texture continueMsgTexture_;
+	Texture winnerText_;
+	Texture pointsUI_;
+	SDL_Color color;
+
+	bool newGame;
+
+	int points_LEFT;
+	int points_RIGHT;
+	const int points_MAX = 5;
+
+	SoundEffect* wall_Hit;
+	SoundEffect* paddle_Hit;
+	std::vector<GameStateObserver*> observadores_;
 
 };
 

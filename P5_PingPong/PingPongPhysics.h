@@ -29,6 +29,7 @@ private:
 
 	std::vector<BallObserver*> observadores_;
 
+	bool newGame;
 	int hits_;
 	int speed_;
 
