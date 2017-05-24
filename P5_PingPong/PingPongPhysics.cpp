@@ -26,7 +26,8 @@ void PingPongPhysics::update(GameObject* o) {
 		int direction = 1 - 2 * (rand() % 2);
 		int angle = 60 - (rand() % 121);
 		int dx = direction * speed_ * std::cos(angle * M_PI / 180.0f);
-		int dy = speed_ * std::sin(angle * M_PI / 180.0f);
+		int dy = speed_ * std::sin(angle * M_PI / 180.0f);
+
 		o->setDirection(dx, dy);
 		//o->setDirection(0, 0);
 

@@ -7,11 +7,11 @@
 #include "GameStateObserver.h"
 #include "Font.h"
 #include "Texture.h"
-
-class GameManager: public GameObject, public BallObserver {
+#include "TimedObstacleObserver.h"
+class GameManager: public GameObject, public BallObserver, public TimedObstacleObserver {
 
 public:
-	GameManager(SDLGame* game);
+	GameManager(SDLGame* game, GameObject* left_paddle, GameObject* right_paddle);
 	virtual ~GameManager();
 
 	virtual void registerGameStateObserver(GameStateObserver* o);
@@ -26,19 +26,27 @@ public:
 	virtual void onCollision(GameObject* ball, GameObject* o);
 	virtual void onBorderExit(GameObject* ball, BallObserver::EXIT_SIDE side);
 
+	void onObstacleCollision(GameObject* obs, GameObject* o);
+	void onObstacleStateChange(GameObject* obs, bool state);
+
 private:
 	Font* font_;
 	Texture startMsgTexture_;
 	Texture continueMsgTexture_;
+	Texture bonusMsgTexture_;
 	Texture winnerText_;
 	Texture pointsUI_;
 	SDL_Color color;
 
-	bool newGame;
+	bool newGame, leftObstacleActive, rightObstacleActive;
 
 	int points_LEFT;
 	int points_RIGHT;
 	const int points_MAX = 5;
+
+	GameObject* left_paddle_;
+	GameObject* right_paddle_;
+	GameObject* last_paddle_hit_;
 
 	SoundEffect* wall_Hit;
 	SoundEffect* paddle_Hit;

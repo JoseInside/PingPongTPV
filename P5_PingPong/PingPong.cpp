@@ -27,9 +27,11 @@ void PingPong::initGame() {
 
 	rectangleRenderer_ = new RectRender(color);
 	imageRenderer_ = new ImageRendered( getResources()->getTexture(SDLGame::TennisBall) );
-
-	bounceOnBorderPhysics_ = new BounceOnBorders(true, true, true, true);
-	//
+	keyIcon_ = new ImageRendered(getResources()->getTexture(SDLGame::KeyBoardIcon));
+	mouseIcon_ = new ImageRendered(getResources()->getTexture(SDLGame::MouseIcon));
+	AIIcon_ = new ImageRendered(getResources()->getTexture(SDLGame::AIIcon));
+	//bounceOnBorderPhysics_ = new BounceOnBorders(true, true, true, true);
+	
 	
 	// ball
 	ball_ = new GameComponent(this);
@@ -39,8 +41,8 @@ void PingPong::initGame() {
 	ball_->setPosition(
 		ball_->getGame()->getWindowWidth() / 2 - ball_->getWidth() / 2,
 		ball_->getGame()->getWindowHeight() / 2 - ball_->getHeight() / 2);
-	ball_->setPhysicsComponent(bounceOnBorderPhysics_);
 	ball_->setRenderComponent(rectangleRenderer_);
+	//ball_->setPhysicsComponent(bounceOnBorderPhysics_);
 	// use the following for an image of a tennis ball
 	// ball_->setRenderComponent(imageRenderer_);
 
@@ -55,13 +57,24 @@ void PingPong::initGame() {
 	left_paddle_->setRenderComponent(rectangleRenderer_);
 
 	leftKeyInput_ = new PaddleKeyboardInputComp(SDLK_UP, SDLK_DOWN, SDLK_SPACE, 5);
-	left_paddle_->setInputComponent(leftKeyInput_);
-	//leftMouseInput_ = new PaddleMouseInputComp();
-	//left_paddle_->setInputComponent(leftMouseInput_);
+	leftMouseInput_ = new PaddleMouseInputComp();
 	leftPaddlePhysics_ = new StopOnBordersPhysics(false, false, true, true);
+	leftPaddleAI_ = new PaddleAIPhysics(ball_);
+	SwitchLeftPaddle_ = new ComponentSwitcher(this, left_paddle_, SDLK_1);
+	
+	left_paddle_->setInputComponent(leftKeyInput_);
+	//left_paddle_->setInputComponent(leftMouseInput_);
 	left_paddle_->setPhysicsComponent(leftPaddlePhysics_);
-	//leftPaddleAI_ = new PaddleAIPhysics(ball_);
 	//left_paddle_->setPhysicsComponent(leftPaddleAI_);
+
+	SwitchLeftPaddle_->setPosition(10, 10);
+	//SwitchLeftPaddle_->setDirection(0, 0);
+	SwitchLeftPaddle_->setWidth(50);
+	SwitchLeftPaddle_->setHeight(50);
+	SwitchLeftPaddle_->addMode(leftKeyInput_, leftPaddlePhysics_, rectangleRenderer_, keyIcon_);
+	SwitchLeftPaddle_->addMode(leftMouseInput_, leftPaddlePhysics_, rectangleRenderer_, mouseIcon_);
+	SwitchLeftPaddle_->addMode(nullptr, leftPaddleAI_, rectangleRenderer_, AIIcon_);
+	SwitchLeftPaddle_->setMode(0);
 
 	// right paddle
 	right_paddle_ = new GameComponent(this);
@@ -72,29 +85,49 @@ void PingPong::initGame() {
 	right_paddle_->setDirection(0, 0);
 	right_paddle_->setRenderComponent(rectangleRenderer_);
 
-	//rightKeyInput_ = new PaddleKeyboardInputComp(SDLK_a, SDLK_z, SDLK_s, 5);
-	//right_paddle_->setInputComponent(rightKeyInput_);
-	//rightMouseInput_ = new PaddleMouseInputComp();
-	//right_paddle_->setInputComponent(rightMouseInput_);
+	rightKeyInput_ = new PaddleKeyboardInputComp(SDLK_a, SDLK_z, SDLK_s, 5);
+	rightMouseInput_ = new PaddleMouseInputComp();
 	rightPaddlePhysics_ = new StopOnBordersPhysics(false, false, true, true);
-	right_paddle_->setPhysicsComponent(rightPaddlePhysics_);
 	rightPaddleAI_ = new PaddleAIPhysics(ball_);
-	right_paddle_->setPhysicsComponent(rightPaddleAI_);
+	SwitchRightPaddle_ = new ComponentSwitcher(this, right_paddle_, SDLK_2);
+	
+	//right_paddle_->setInputComponent(rightKeyInput_);
+	//right_paddle_->setInputComponent(rightMouseInput_);
+	//right_paddle_->setPhysicsComponent(rightPaddlePhysics_);
+	//right_paddle_->setPhysicsComponent(rightPaddleAI_);
 
+	// switcher
+	SwitchRightPaddle_->setPosition(getWindowWidth() - 60, 10);
+	//SwitchRightPaddle_->setDirection(0, 0);
+	SwitchRightPaddle_->setWidth(50);
+	SwitchRightPaddle_->setHeight(50);
+	SwitchRightPaddle_->addMode(rightKeyInput_, rightPaddlePhysics_, rectangleRenderer_, keyIcon_);
+	SwitchRightPaddle_->addMode(rightMouseInput_, rightPaddlePhysics_, rectangleRenderer_, mouseIcon_);
+	SwitchRightPaddle_->addMode(nullptr, rightPaddleAI_, rectangleRenderer_, AIIcon_);
+	SwitchRightPaddle_->setMode(2);
+	
+	
 	// game manager
-	gameManager_ = new GameManager(this);
+	gameManager_ = new GameManager(this, left_paddle_, right_paddle_);
 	
 	pingPongPhysics_ = new PingPongPhysics(left_paddle_, right_paddle_);
 	ball_->setPhysicsComponent(pingPongPhysics_);
 	gameManager_->registerGameStateObserver(pingPongPhysics_);
 	pingPongPhysics_->resgisterBallObserver(gameManager_);
 	
+	// obstacle
+	TimedObstacle_ = new TimedObstacle(this, 500, 2500, ball_);
+	//TimedObstacle_->setRenderComponent(rectangleRenderer_);
+	gameManager_->registerGameStateObserver(TimedObstacle_);
+	TimedObstacle_->addObserver(gameManager_);
 	
 	actors_.push_back(left_paddle_);
 	actors_.push_back(right_paddle_);
 	actors_.push_back(ball_);
 	actors_.push_back(gameManager_);
-
+	actors_.push_back(SwitchLeftPaddle_);
+	actors_.push_back(SwitchRightPaddle_);
+	actors_.push_back(TimedObstacle_);
 	
 }
 
@@ -104,7 +137,7 @@ void PingPong::closeGame() {
 	delete ball_;
 	delete rectangleRenderer_;
 	delete imageRenderer_;
-	delete bounceOnBorderPhysics_;
+//	delete bounceOnBorderPhysics_;
 }
 
 void PingPong::start() {

@@ -28,13 +28,16 @@ public:
 	virtual void render();
 
 private:
-	struct mode {
-		InputComponent* inputComp; PhysicsComponent* physicsComp;
-		RenderComponent* renderComp; RenderComponent* modeRendered;
-	};
+	
+	std::vector<InputComponent*> inputComp_;
+	std::vector<PhysicsComponent*> physicsComp_;
+	std::vector<RenderComponent*> renderComp_;
+	std::vector<RenderComponent*> modeRendered_;
+	
+	int modeActual_;
 	GameComponent* actor_;
 	SDL_Keycode ctrlKey_;
-	std::vector <mode> modos;
+	//std::vector <mode> modos;
 
 };
 
