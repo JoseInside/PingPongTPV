@@ -10,16 +10,22 @@ public:
 	virtual ~TimedObstacle();
 	virtual void addObserver(TimedObstacleObserver* o);
 
+	virtual void update();
+	virtual void render();
+	virtual void onCollision();
+	virtual void obstacleActivated();
+	virtual void handleInput(const SDL_Event& event) {};
+
+private:
+
 	virtual void onGameStart();
 	virtual void onGameOver();
 	virtual void onRoundStart();
 	virtual void onRoundOver();
 
-	virtual void update();
-	virtual void render();
-	virtual void onCollision();
-	virtual void obstacleActivated();
-	virtual void handleInput(const SDL_Event& event) {};private:	RenderComponent* renderComp_;	int timePassed, lastTick;	int pTime_, dTime_;
+	RenderComponent* renderComp_;
+	int timePassed, lastTick;
+	int pTime_, dTime_;
 	SDLGame* game_;
 	GameObject* ball_;
 	bool newGame, hit;

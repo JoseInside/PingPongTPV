@@ -100,7 +100,6 @@ void TimedObstacle::onGameOver() {
 	newGame = false;
 	setActive(false);
 	//visible = false;
-
 }
 void TimedObstacle::onRoundStart() {
 	newGame = true;
@@ -110,7 +109,6 @@ void TimedObstacle::onRoundOver() {
 	newGame = false;
 	setActive(false);
 	//visible = false;
-
 }
 
 void TimedObstacle::render() {
